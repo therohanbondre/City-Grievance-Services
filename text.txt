@@ -1,0 +1,28 @@
+******HOW TO START THE CODE********
+
+1. Extract the Zip File after Downloading.
+
+2. Open xampp server 
+
+3. Open htdocs in the xampp server folder
+
+4. Copy the extracted files and paste the file in htdocs
+
+5. After this start the xampp server as admin panel and my sql 
+
+6. Insert the database in mysql to get the database entry if website 
+
+7. Click on cms.sql file which is you sql file for the project 
+
+8. Your installation is done 
+
+9. Enjoy 
+
+
+username :    test@gmail.com
+pssword : 123
+
+
+admin
+ username : admin 
+ password : admin123
