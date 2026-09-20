@@ -101,3 +101,8 @@ php_errorlog
 *.tar.gz
 *.rar
 *.7z
+
+# ------------------------------------------------------------
+#  Plaintext credential files — must never be committed
+# ------------------------------------------------------------
+text.txt
