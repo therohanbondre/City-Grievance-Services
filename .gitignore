@@ -1,0 +1,103 @@
+# ============================================================
+#  City Grievance Services — .gitignore
+# ============================================================
+
+
+# ------------------------------------------------------------
+#  Environment & credentials
+#  Never commit real database passwords or secrets.
+# ------------------------------------------------------------
+.env
+*.env.local
+*.env.production
+
+
+# ------------------------------------------------------------
+#  Database configuration files
+#  These are generated from .env.example during setup.
+#  Committing them would expose live credentials.
+# ------------------------------------------------------------
+admin/include/config.php
+users/includes/config.php
+
+
+# ------------------------------------------------------------
+#  User-uploaded content
+#  Files uploaded by citizens (complaint attachments and
+#  profile photos) are runtime data, not source code.
+#  The upload directories are kept in git via .gitkeep files.
+# ------------------------------------------------------------
+users/complaintdocs/*
+!users/complaintdocs/.gitkeep
+
+users/userimages/*
+!users/userimages/.gitkeep
+!users/userimages/noimage.png
+
+
+# ------------------------------------------------------------
+#  Operating system files
+# ------------------------------------------------------------
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon?
+._*
+.Spotlight-V100
+.Trashes
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Linux
+*~
+
+
+# ------------------------------------------------------------
+#  Editor and IDE files
+# ------------------------------------------------------------
+
+# VS Code
+.vscode/
+*.code-workspace
+
+# JetBrains (PhpStorm, IntelliJ, etc.)
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# Vim / Emacs
+*.swp
+*.swo
+*~
+\#*\#
+.\#*
+
+
+# ------------------------------------------------------------
+#  PHP / Server logs
+# ------------------------------------------------------------
+*.log
+error_log
+php_errorlog
+
+
+# ------------------------------------------------------------
+#  Archive and package files
+# ------------------------------------------------------------
+*.zip
+*.tar.gz
+*.rar
+*.7z

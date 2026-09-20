@@ -1,0 +1,4 @@
+# This file exists solely to make git track this otherwise-empty directory.
+# Complaint attachment files uploaded by citizens are stored here at runtime.
+# All uploaded files are excluded from version control via .gitignore.
+# Do not delete this file.

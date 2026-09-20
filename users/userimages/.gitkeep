@@ -1,0 +1,5 @@
+# This file exists solely to make git track this otherwise-empty directory.
+# User profile photos uploaded via the portal are stored here at runtime.
+# All uploaded photos are excluded from version control via .gitignore.
+# noimage.png (the default placeholder avatar) IS tracked and must remain here.
+# Do not delete this file.
