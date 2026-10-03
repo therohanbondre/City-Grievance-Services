@@ -3,10 +3,15 @@ FROM php:8.3-apache
 RUN apt-get update \
     && apt-get install -y --no-install-recommends libpq-dev \
     && docker-php-ext-install pdo_pgsql \
-    && for module in mpm_event mpm_worker mpm_itk; do \
-        if [ -e "/etc/apache2/mods-enabled/${module}.load" ]; then a2dismod "${module}"; fi; \
+    && for module_file in /etc/apache2/mods-enabled/mpm_*.load; do \
+        [ -e "${module_file}" ] || continue; \
+        module="${module_file##*/}"; \
+        module="${module%.load}"; \
+        if [ "${module}" != "mpm_prefork" ]; then a2dismod "${module}"; fi; \
     done \
     && a2enmod mpm_prefork headers \
+    && enabled_mpm_count="$(find /etc/apache2/mods-enabled -maxdepth 1 -type l -name 'mpm_*.load' | wc -l)" \
+    && [ "${enabled_mpm_count}" -eq 1 ] \
     && rm -rf /var/lib/apt/lists/*
 
 COPY docker/apache-security.conf /etc/apache2/conf-available/cgs-security.conf
