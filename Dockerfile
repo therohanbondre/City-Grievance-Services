@@ -3,7 +3,10 @@ FROM php:8.3-apache
 RUN apt-get update \
     && apt-get install -y --no-install-recommends libpq-dev \
     && docker-php-ext-install pdo_pgsql \
-    && a2enmod headers \
+    && for module in mpm_event mpm_worker mpm_itk; do \
+        if [ -e "/etc/apache2/mods-enabled/${module}.load" ]; then a2dismod "${module}"; fi; \
+    done \
+    && a2enmod mpm_prefork headers \
     && rm -rf /var/lib/apt/lists/*
 
 COPY docker/apache-security.conf /etc/apache2/conf-available/cgs-security.conf
