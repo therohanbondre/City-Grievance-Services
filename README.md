@@ -2,8 +2,8 @@
 
 A web-based civic complaint management portal that gives citizens a digital channel to submit, track, and follow up on grievances with their local civic authority. An administrator can view all incoming complaints, update their processing status with remarks, and manage the supporting reference data.
 
-> **Built with:** PHP · MySQL · Bootstrap · jQuery  
-> **Environment:** XAMPP (Apache + MySQL)  
+> **Built with:** PHP · PostgreSQL · Bootstrap · jQuery<br>
+> **Hosting:** Railway (PHP app) · Supabase (PostgreSQL)
 > **Status:** Functional prototype
 
 ---
@@ -37,8 +37,8 @@ A web-based civic complaint management portal that gives citizens a digital chan
 | Forgot Password | Password reset by matching registered email and contact number |
 | Lodge Complaint | 2-level category selection, complaint type, ward/area, description, optional file attachment |
 | Complaint Tracking | Unique complaint number assigned on submission |
-| Complaint History | Tabular view of all own complaints with colour-coded status badges |
-| Complaint Detail | Full complaint view including all admin remarks and status history |
+| Complaint History | Newest-first list of own complaints with live search, status filtering, result counts, and an empty state |
+| Complaint Detail | Full complaint view including all admin remarks, copyable complaint number, and print-friendly details |
 | Profile Management | Update name, contact, address, state, country, and pincode |
 | Profile Photo | Upload a profile photo (JPG / PNG / GIF) |
 | Change Password | Change password after verifying the current one |
@@ -84,16 +84,19 @@ A web-based civic complaint management portal that gives citizens a digital chan
 
 | Layer | Technology | Version / Notes |
 |-------|-----------|-----------------|
-| Backend | PHP | 8.x (procedural) |
-| Database | MySQL / MariaDB | 10.4+ |
-| Web Server | Apache | Via XAMPP |
+| Backend | PHP | 8.3 (procedural, PDO PostgreSQL) |
+| Database | Supabase PostgreSQL | PostgreSQL |
+| Web Server | Apache | Railway Docker service |
 | Frontend | Bootstrap | 2 (admin panel) · 3 (user portal) |
 | Frontend | jQuery | 1.8 / 1.9 |
 | Frontend | jQuery DataTables | Client-side sort, search, pagination |
 | Frontend | Font Awesome | 4.x — icon fonts |
 | Frontend | jQuery Backstretch | Full-screen login background |
 | Frontend | Chart.js | Included (dashboard widget) |
-| Development | XAMPP | Local Apache + MySQL stack |
+| Hosting | Railway | PHP frontend and backend in one service |
+| Development | PHP + PostgreSQL | Local PHP server or Docker |
+
+There is no Composer or Node dependency manifest, application build step, migration runner, or application-specific automated test suite. The Bootstrap, jQuery, and other frontend libraries are checked into the repository. `Dockerfile` provides the Railway runtime, and `supabase/schema.sql` creates the PostgreSQL tables.
 
 ---
 
@@ -109,16 +112,16 @@ Browser
         Popup windows: update complaint, view user profile
   │
   ▼
-Apache (XAMPP)
+Apache (Railway)
   │
   ├── users/*.php   — citizen-facing pages
-  │     └── includes/config.php  ← DB connection (reads from env)
+   │     └── includes/config.php  ← PDO connection via database.php
   │
   └── admin/*.php   — administrator pages
-        └── include/config.php   ← DB connection (reads from env)
+            └── include/config.php   ← PDO connection via database.php
   │
-  ▼
-MySQL — database: cms
+   ▼
+Supabase PostgreSQL — database: postgres
   │
   ├── users              (citizen accounts)
   ├── admin              (single admin account)
@@ -134,7 +137,9 @@ MySQL — database: cms
 
 ## Database Design
 
-Database name: **`cms`**
+Database name: **`postgres`** (Supabase default)
+
+The deployable PostgreSQL schema is [`supabase/schema.sql`](supabase/schema.sql). `cms.sql` is the legacy MySQL/MariaDB dump for local reference; it cannot be imported directly into Supabase. The Supabase schema creates tables only and does not migrate existing MySQL records or seed demo accounts.
 
 ### Entity Relationships
 
@@ -191,8 +196,12 @@ NULL  ──►  "in process"  ──►  "closed"
 ```
 complaint/
 ├── index.html                    ← Public landing page (Bootstrap carousel)
-├── cms.sql                       ← Full database schema + seed data
-├── .env.example                  ← Environment variable template (copy → .env)
+├── cms.sql                       ← Legacy MySQL schema + demo seed data
+├── supabase/schema.sql           ← Supabase PostgreSQL schema
+├── database.php                  ← Shared PDO PostgreSQL connection and query helpers
+├── Dockerfile                    ← Railway PHP/Apache runtime
+├── railway.toml                  ← Railway build and health-check settings
+├── .env.example                  ← Supabase environment-variable template
 ├── .gitignore
 ├── README.md
 ├── CONTRIBUTING.md
@@ -220,7 +229,8 @@ complaint/
 │   ├── userimages/               ← Uploaded profile photos (git-ignored)
 │   ├── assets/                   ← CSS, JS, font-awesome
 │   └── includes/
-│       ├── config.php            ← DB connection (excluded from git)
+│       ├── config.php            ← Runtime config (created from example in Docker)
+│       ├── config.example.php    ← PostgreSQL config template
 │       ├── header.php
 │       ├── sidebar.php
 │       └── footer.php
@@ -249,7 +259,8 @@ complaint/
     ├── images/icons/             ← Font Awesome icons
     ├── scripts/                  ← jQuery, jQuery UI, DataTables, Flot
     └── include/
-        ├── config.php            ← DB connection (excluded from git)
+      ├── config.php            ← Runtime config (created from example in Docker)
+      ├── config.example.php    ← PostgreSQL config template
         ├── header.php
         ├── sidebar.php
         └── footer.php
@@ -261,107 +272,82 @@ complaint/
 
 ### Prerequisites
 
-- [XAMPP](https://www.apachefriends.org/) (Apache + MySQL + PHP 8.x)
+- PHP 8.3 with `pdo_pgsql` and sessions enabled
+- A Supabase project, or another PostgreSQL 14+ server for local development
+- Apache with PHP support, or another PHP-capable web server
 - A modern web browser
 
-### Step-by-step Setup
+Railway builds the included Dockerfile. The application has no Composer/npm install or frontend build command.
 
-**1. Clone the repository**
+### Local setup
 
-```bash
-git clone https://github.com/your-username/city-grievance-services.git
-```
+1. Create a Supabase project and run `supabase/schema.sql` in its SQL Editor. This creates the tables but does not copy records from the legacy MySQL database.
+2. Copy `admin/include/config.example.php` to `admin/include/config.php` and `users/includes/config.example.php` to `users/includes/config.php`.
+3. Copy `.env.example` to `.env` and fill in the PostgreSQL connection URL or connection parts from Supabase Database Settings. `database.php` loads this local file; process environment variables take precedence. Set `SUPABASE_DB_SSLMODE=require` for hosted databases.
+4. `.env` is git-ignored and blocked from Apache requests. Railway should receive these values through its private service-variable settings; `.env` is excluded from the Docker image. The Supabase API keys are not currently used by the PHP app's database integration.
+5. Create the initial administrator in Supabase. The current login code stores MD5 password hashes; this legacy behavior should be replaced before public production use.
+6. Ensure `users/complaintdocs/` and `users/userimages/` are writable. For local development, use Apache or another PHP server with the project root as its document root.
+7. Open the application at `/`, `/users/`, or `/admin/` on your local server.
 
-**2. Copy files to XAMPP**
+### Railway deployment
 
-Copy the `complaint/` folder into your XAMPP `htdocs` directory:
+1. Create a Supabase project and run `supabase/schema.sql` in the Supabase SQL Editor. The schema is empty by design; export and import existing MySQL data separately after reviewing it. `cms.sql` is MySQL-specific and cannot be imported directly.
+2. Create the initial admin account and add any required categories/areas. The current admin and citizen login flows use MD5 passwords; resolve this security limitation before making the portal public.
+3. Create a Railway project from this GitHub repository. Railway uses `Dockerfile` and `railway.toml` to build the PHP/Apache service and bind Apache to Railway's `PORT`.
+4. Add `SUPABASE_DB_URL` to the Railway service variables using the PostgreSQL connection string from Supabase. Prefer the Supabase connection pooler if the direct database host is not reachable from Railway. Do not commit the URL or password.
+5. Attach persistent Railway volumes at `/var/www/html/users/complaintdocs` and `/var/www/html/users/userimages`; otherwise complaint files and profile photos will be lost on redeploy/restart. Back up these volumes separately from the Supabase database.
+6. Enable a Railway public domain and HTTPS, then verify the citizen and admin sign-in, complaint creation, status updates, remark history, uploads, and logs.
 
-```
-Windows:  C:\xampp\htdocs\complaint\
-Linux:    /opt/lampp/htdocs/complaint/
-macOS:    /Applications/XAMPP/htdocs/complaint/
-```
+The project does not currently provide automated migration tooling for data, schema upgrades, or file storage. Configure encrypted backups and test restoration before relying on production data.
 
-**3. Start XAMPP services**
+This is still a prototype application. Before exposing it publicly, address the documented MD5 password storage, SQL injection, CSRF, and upload-validation limitations. The Railway image blocks PHP endpoints under bundled admin plugin assets and excludes SQL dumps, but that does not replace application-level security work.
 
-Open the XAMPP Control Panel and start both **Apache** and **MySQL**.
+Before public release, note that the repository documents significant prototype limitations: MD5 password hashes, SQL built by string concatenation, missing CSRF protections, unsafe complaint upload validation, and an unverified password-reset flow. A strong hosting configuration alone does not resolve these application issues; address them before exposing the application to untrusted internet traffic.
 
-**4. Create the database**
+### Vercel
 
-- Open [http://localhost/phpmyadmin](http://localhost/phpmyadmin) in your browser
-- Click **New** → enter `cms` as the database name → click **Create**
-- Select the `cms` database from the left panel
-- Click **Import** → choose `complaint/cms.sql` → click **Go**
+This application is **not deployable to Vercel as-is**. It is a multi-page PHP/PostgreSQL application; Vercel does not list PHP as an official runtime. Its runtimes documentation lists PHP through the community-maintained `vercel-php` runtime. Deploying this app there would require an adaptation and validation project, not just connecting this folder to Vercel:
 
-**5. Configure the environment**
+1. First resolve the production security issues described above. In particular, remove or deny access to PHP demos and upload handlers shipped under `admin/assets/plugins/`; never publish that plugin tree as executable endpoints.
+2. Use Supabase PostgreSQL or another managed PostgreSQL provider reachable from Vercel Functions. Apply `supabase/schema.sql`, migrate data separately, remove demo accounts/data, and configure a least-privilege database role. Vercel does not provide this app's database.
+3. Adapt PHP request routing to the `vercel-php` community runtime and verify every existing route, relative include, asset URL, session/auth flow, and redirect in preview deployments. The community runtime's example expects PHP handlers under `api/`; this app currently has independent scripts in `users/` and `admin/`, and has no Vercel adapter.
+4. Replace filesystem-backed PHP sessions with a shared, durable session store compatible with the chosen deployment. Vercel Function instances are not a durable session filesystem.
+5. Move complaint attachments and profile images to persistent object storage and change upload/download code to use it. The current app writes uploads under `users/complaintdocs/` and `users/userimages/`; Vercel deployment filesystems are not a persistent upload store.
+6. Configure `SUPABASE_DB_URL`, plus credentials for any new session/object-storage services, as encrypted Vercel environment variables for Preview and Production. Do not deploy until those integrations and production safeguards are implemented.
+7. Deploy to a Vercel Preview URL first and run the complete production smoke checklist below before promoting to Production. Confirm database connectivity, persistent sessions across separate function invocations, upload/download behavior, auth isolation, and error logging.
 
-```bash
-# From inside the complaint/ directory
-copy .env.example .env        # Windows
-cp .env.example .env          # Linux / macOS
-```
-
-Open `.env` and set your database credentials. For a default XAMPP installation no changes are needed:
-
-```
-DB_SERVER=localhost
-DB_USER=root
-DB_PASS=
-DB_NAME=cms
-```
-
-> **Important:** The application reads these values via `getenv()`. For Apache/XAMPP to expose them, either set them via `SetEnv` in your virtual host / `.htaccess`, or edit `admin/include/config.php` and `users/includes/config.php` directly with your values after cloning (these files are excluded from git).
-
-**6. Verify upload directory permissions**
-
-Ensure the following directories are writable by the web server:
-
-```
-complaint/users/complaintdocs/
-complaint/users/userimages/
-```
-
-**7. Open the application**
-
-| URL | Purpose |
-|-----|---------|
-| `http://localhost/complaint/` | Public landing page |
-| `http://localhost/complaint/users/` | Citizen login |
-| `http://localhost/complaint/users/registration.php` | Citizen registration |
-| `http://localhost/complaint/admin/` | Admin login |
+Vercel references: [supported runtimes](https://vercel.com/docs/functions/runtimes) (PHP is listed as a community runtime) and the [`vercel-php` community runtime](https://github.com/vercel-community/php). Runtime behavior and compatibility should be checked against their current documentation before implementation. Do not point a static Vercel deployment at the unmodified `complaint/` directory: static hosting does not execute these PHP pages, and publishing PHP source or bundled plugin demo endpoints is unsafe. If Vercel is mandatory, budget for the adaptations above; otherwise, deploy the current application to a conventional PHP-capable host using the preceding production steps.
 
 ---
 
 ## Configuration
 
-All configurable values are managed through environment variables (see `.env.example`).
+Both `admin/include/config.php` and `users/includes/config.php` use `database.php` to read PostgreSQL settings from process environment variables or the local `.env` file. Process variables take precedence. Railway should use its private service-variable settings; the Docker image excludes `.env`. Railway creates the runtime config files from the tracked templates. For local development, copy the templates to the ignored `config.php` paths:
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `DB_SERVER` | `localhost` | MySQL host |
-| `DB_USER` | `root` | MySQL username |
-| `DB_PASS` | *(empty)* | MySQL password |
-| `DB_NAME` | `cms` | Database name |
+| `SUPABASE_DB_URL` | *(unset)* | Preferred PostgreSQL connection URL; Railway should set this |
+| `SUPABASE_DB_HOST` | `localhost` | PostgreSQL host when no URL is set |
+| `SUPABASE_DB_PORT` | `5432` | PostgreSQL port (Supabase pooler may use a different port) |
+| `SUPABASE_DB_NAME` | `postgres` | PostgreSQL database name |
+| `SUPABASE_DB_USER` | `postgres` | PostgreSQL username |
+| `SUPABASE_DB_PASSWORD` | *(empty)* | PostgreSQL password |
+| `SUPABASE_DB_SSLMODE` | `require` | TLS mode for the PostgreSQL connection |
 
-If environment variables are not available in your setup, edit the two config files directly after cloning:
-
-- `admin/include/config.php`
-- `users/includes/config.php`
-
-Both files are excluded from git tracking (see `.gitignore`) so edits to them will not be accidentally committed.
+`DATABASE_URL` is accepted as a fallback for `SUPABASE_DB_URL`. PHP must have `pdo_pgsql` enabled. Keep environment values consistent for the admin and citizen portals because both use the same database. Production must set a real connection URL; do not rely on local defaults.
 
 ---
 
 ## Default Credentials
 
-These credentials are seeded by `cms.sql`. **Change them immediately after installation.**
+These are credentials from the legacy MySQL `cms.sql` demo seed only. The Supabase schema does not seed accounts.
 
 | Role | Username | Password |
 |------|----------|----------|
 | Admin | `admin` | `admin123` |
 | Test User | `test@gmail.com` | `123` |
 
-> **Security note:** Passwords are currently stored as unsalted MD5 hashes. This is a known limitation — see [Known Limitations](#known-limitations).
+> **Legacy demo only:** `cms.sql` seeds the admin (`admin` / `admin123`) and test citizen (`test@gmail.com` / `123`). These weak accounts are not created by `supabase/schema.sql` and must never remain enabled on a public deployment. Current login code still expects unsalted MD5 hashes; changing the password through the UI does not upgrade that storage scheme. See [Known Limitations](#known-limitations).
 
 ---
 
@@ -396,8 +382,19 @@ These credentials are seeded by `cms.sql`. **Change them immediately after insta
    → complaint status updated in tblcomplaints
 
 8. Citizen checks status        →  users/complaint-history.php
+   Searches / filters complaints
    Views full detail + remarks  →  users/complaint-details.php
+   Copies complaint number or prints details
 ```
+
+### Production smoke checks
+
+- Confirm `SUPABASE_DB_URL` is visible to the PHP runtime and both portals connect to the intended database; do not expose `phpinfo()` or credentials.
+- Register a non-demo citizen, sign in/out, and verify the session redirects without downgrading an HTTPS connection.
+- Submit a complaint with and without an attachment; confirm a unique complaint number is assigned and the upload is stored.
+- Sign in as the administrator, update the complaint to *In Process* and then *Closed* with remarks, and verify the citizen sees the status and complete remark history.
+- On the citizen complaint history page, test text search, each status filter, clear filters, no-result behavior, and the narrow/mobile layout. On details, test copy (HTTPS is required by most browsers for clipboard access) and browser printing.
+- Check error logs, verify uploads cannot execute server-side code, and restore a backup into a separate test database before relying on production backups.
 
 ---
 
@@ -429,7 +426,7 @@ These are existing architectural decisions in the current codebase. They do not 
 - [ ] Department assignment — route complaints to responsible departments
 - [ ] Multi-admin support with role-based access control
 - [ ] Report generation and CSV/PDF export
-- [ ] Complaint search and advanced filtering for citizens
+- [x] Citizen complaint search and status filtering
 - [ ] Mobile-responsive admin panel (currently Bootstrap 2)
 - [ ] Captcha on login and registration forms
 - [ ] Citizen feedback / satisfaction rating after complaint closure

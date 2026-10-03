@@ -15,14 +15,14 @@ if(isset($_POST['submit']))
 {
 	$state=$_POST['state'];
 	$description=$_POST['description'];
-$sql=mysqli_query($con,"insert into state(stateName,stateDescription) values('$state','$description')");
+$sql=app_db_query($con,"insert into state(stateName,stateDescription) values('$state','$description')");
 $_SESSION['msg']="Ward added Successfully !!";
 
 }
 
 if(isset($_GET['del']))
 		  {
-		          mysqli_query($con,"delete from state where id = '".$_GET['id']."'");
+		          app_db_query($con,"delete from state where id = '".$_GET['id']."'");
                   $_SESSION['delmsg']="Ward deleted !!";
 		  }
 
@@ -37,7 +37,7 @@ if(isset($_GET['del']))
 	<link type="text/css" href="bootstrap/css/bootstrap-responsive.min.css" rel="stylesheet">
 	<link type="text/css" href="css/theme.css" rel="stylesheet">
 	<link type="text/css" href="images/icons/css/font-awesome.css" rel="stylesheet">
-	<link type="text/css" href='http://fonts.googleapis.com/css?family=Open+Sans:400italic,600italic,400,600' rel='stylesheet'>
+	<link type="text/css" href='https://fonts.googleapis.com/css?family=Open+Sans:400italic,600italic,400,600' rel='stylesheet'>
 </head>
 <body>
 <?php include('include/header.php');?>
@@ -119,9 +119,9 @@ if(isset($_GET['del']))
 									</thead>
 									<tbody>
 
-<?php $query=mysqli_query($con,"select * from state");
+<?php $query=app_db_query($con,"select * from state");
 $cnt=1;
-while($row=mysqli_fetch_array($query))
+while($row=app_db_fetch_array($query))
 {
 ?>									
 										<tr>

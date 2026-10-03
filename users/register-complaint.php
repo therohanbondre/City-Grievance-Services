@@ -22,10 +22,10 @@ $compfile=$_FILES["compfile"]["name"];
 
 
 move_uploaded_file($_FILES["compfile"]["tmp_name"],"complaintdocs/".$_FILES["compfile"]["name"]);
-$query=mysqli_query($con,"insert into tblcomplaints(userId,category,subcategory,complaintType,state,noc,complaintDetails,complaintFile) values('$uid','$category','$subcat','$complaintype','$state','$noc','$complaintdetials','$compfile')");
+$query=app_db_query($con,"insert into tblcomplaints(userId,category,subcategory,complaintType,state,noc,complaintDetails,complaintFile) values('$uid','$category','$subcat','$complaintype','$state','$noc','$complaintdetials','$compfile')");
 // code for show complaint number
-$sql=mysqli_query($con,"select complaintNumber from tblcomplaints  order by complaintNumber desc limit 1");
-while($row=mysqli_fetch_array($sql))
+$sql=app_db_query($con,"select complaintNumber from tblcomplaints  order by complaintNumber desc limit 1");
+while($row=app_db_fetch_array($sql))
 {
  $cmpn=$row['complaintNumber'];
 }
@@ -107,8 +107,8 @@ function getCat(val) {
 <div class="col-sm-4">
 <select name="category" id="category" class="form-control" onChange="getCat(this.value);" required="">
 <option value="">Select Category</option>
-<?php $sql=mysqli_query($con,"select id,categoryName from category ");
-while ($rw=mysqli_fetch_array($sql)) {
+<?php $sql=app_db_query($con,"select id,categoryName from category ");
+while ($rw=app_db_fetch_array($sql)) {
   ?>
   <option value="<?php echo htmlentities($rw['id']);?>"><?php echo htmlentities($rw['categoryName']);?></option>
 <?php
@@ -140,8 +140,8 @@ while ($rw=mysqli_fetch_array($sql)) {
 <div class="col-sm-4">
 <select name="state" required="required" class="form-control">
 <option value="">Select Area</option>
-<?php $sql=mysqli_query($con,"select stateName from state ");
-while ($rw=mysqli_fetch_array($sql)) {
+<?php $sql=app_db_query($con,"select stateName from state ");
+while ($rw=app_db_fetch_array($sql)) {
   ?>
   <option value="<?php echo htmlentities($rw['stateName']);?>"><?php echo htmlentities($rw['stateName']);?></option>
 <?php

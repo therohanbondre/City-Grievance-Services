@@ -3,8 +3,8 @@
               <!-- sidebar menu start-->
               <ul class="sidebar-menu" id="nav-accordion">
               
-                              <?php $query=mysqli_query($con,"select fullName,userImage from users where userEmail='".$_SESSION['login']."'");
- while($row=mysqli_fetch_array($query)) 
+                              <?php $query=app_db_query($con,"select fullName,userImage from users where userEmail='".$_SESSION['login']."'");
+ while($row=app_db_fetch_array($query))
  {
  ?> 
                   <p class="centered"><a href="profile.php">

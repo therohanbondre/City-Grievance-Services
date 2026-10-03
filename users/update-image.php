@@ -32,7 +32,7 @@ $imgnewfile=md5($imgfile).$extension;
 // Code for move image into directory
 move_uploaded_file($_FILES["image"]["tmp_name"],"userimages/".$imgnewfile);
 // Query for insertion data into database
-$query=mysqli_query($con,"update users set userImage='$imgnewfile' where userEmail='".$_SESSION['login']."'");
+$query=app_db_query($con,"update users set userImage='$imgnewfile' where userEmail='".$_SESSION['login']."'");
 if($query)
 {
 $successmsg="Profile photo Successfully !!";
@@ -95,8 +95,8 @@ $errormsg="Profile photo not updated !!";
  <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
                       <b>Oh snap!</b> </b> <?php echo htmlentities($errormsg);?></div>
                       <?php }?>
- <?php $query=mysqli_query($con,"select * from users where userEmail='".$_SESSION['login']."'");
- while($row=mysqli_fetch_array($query)) 
+ <?php $query=app_db_query($con,"select * from users where userEmail='".$_SESSION['login']."'");
+ while($row=app_db_fetch_array($query))
  {
  ?>                     
 

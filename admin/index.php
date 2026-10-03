@@ -6,25 +6,23 @@ if(isset($_POST['submit']))
 {
 	$username=$_POST['username'];
 	$password=md5($_POST['password']);
-$ret=mysqli_query($con,"SELECT * FROM admin WHERE username='$username' and password='$password'");
-$num=mysqli_fetch_array($ret);
+$ret=app_db_query($con,"SELECT * FROM admin WHERE username='$username' and password='$password'");
+$num=app_db_fetch_array($ret);
 if($num>0)
 {
 $extra="change-password.php";//
 $_SESSION['alogin']=$_POST['username'];
 $_SESSION['id']=$num['id'];
-$host=$_SERVER['HTTP_HOST'];
 $uri=rtrim(dirname($_SERVER['PHP_SELF']),'/\\');
-header("location:http://$host$uri/$extra");
+header("Location: $uri/$extra");
 exit();
 }
 else
 {
 $_SESSION['errmsg']="Invalid username or password";
 $extra="index.php";
-$host  = $_SERVER['HTTP_HOST'];
 $uri  = rtrim(dirname($_SERVER['PHP_SELF']),'/\\');
-header("location:http://$host$uri/$extra");
+header("Location: $uri/$extra");
 exit();
 }
 }
@@ -40,7 +38,7 @@ exit();
 	<link type="text/css" href="bootstrap/css/bootstrap-responsive.min.css" rel="stylesheet">
 	<link type="text/css" href="css/theme.css" rel="stylesheet">
 	<link type="text/css" href="images/icons/css/font-awesome.css" rel="stylesheet">
-	<link type="text/css" href='http://fonts.googleapis.com/css?family=Open+Sans:400italic,600italic,400,600' rel='stylesheet'>
+	<link type="text/css" href='https://fonts.googleapis.com/css?family=Open+Sans:400italic,600italic,400,600' rel='stylesheet'>
 </head>
 <body>
 

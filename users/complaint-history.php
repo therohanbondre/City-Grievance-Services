@@ -41,55 +41,106 @@ else{
 
       <section id="main-content">
           <section class="wrapper">
-          	<h3><i class="fa fa-angle-right"></i>Your Complaint Hstory</h3>
+          	<h3><i class="fa fa-angle-right"></i> Your Complaint History</h3>
 		  		<div class="row mt">
 			  		<div class="col-lg-12">
                       <div class="content-panel">
+                          <?php
+                          $statusCounts = array(
+                              'pending' => 0,
+                              'in-process' => 0,
+                              'closed' => 0,
+                              'other' => 0
+                          );
+                          $complaints = array();
+                          $query = app_db_query($con, "select * from tblcomplaints where userId='" . $_SESSION['id'] . "' order by regDate desc");
+                          while ($row = app_db_fetch_array($query)) {
+                              $status = strtolower(trim((string) $row['status']));
+                              if ($status === '' || $status === 'null') {
+                                  $filterStatus = 'pending';
+                              } elseif ($status === 'in process') {
+                                  $filterStatus = 'in-process';
+                              } elseif ($status === 'closed') {
+                                  $filterStatus = 'closed';
+                              } else {
+                                  $filterStatus = 'other';
+                              }
+                              $statusCounts[$filterStatus]++;
+                              $complaints[] = array('row' => $row, 'filterStatus' => $filterStatus);
+                          }
+                          $complaintTotal = count($complaints);
+                          ?>
+                          <div class="row" style="padding: 15px 15px 0;">
+                              <div class="col-sm-6 form-group">
+                                  <label for="complaint-search">Search complaints</label>
+                                  <input type="search" id="complaint-search" class="form-control" placeholder="Complaint number, date, or status" aria-controls="complaint-history-table">
+                              </div>
+                              <div class="col-sm-4 form-group">
+                                  <label for="complaint-status-filter">Filter by status</label>
+                                  <select id="complaint-status-filter" class="form-control" aria-controls="complaint-history-table">
+                                      <option value="all">All statuses (<?php echo $complaintTotal; ?>)</option>
+                                      <option value="pending">Not processed (<?php echo $statusCounts['pending']; ?>)</option>
+                                      <option value="in-process">In process (<?php echo $statusCounts['in-process']; ?>)</option>
+                                      <option value="closed">Closed (<?php echo $statusCounts['closed']; ?>)</option>
+                                      <?php if ($statusCounts['other'] > 0) { ?>
+                                      <option value="other">Other status (<?php echo $statusCounts['other']; ?>)</option>
+                                      <?php } ?>
+                                  </select>
+                              </div>
+                              <div class="col-sm-2 form-group">
+                                  <button type="button" id="clear-complaint-filters" class="btn btn-default" style="margin-top: 25px;">Clear filters</button>
+                              </div>
+                          </div>
+                          <p id="complaint-results" role="status" aria-live="polite" style="padding: 0 30px;"></p>
                           <section id="unseen">
-                            <table class="table table-bordered table-striped table-condensed">
+                            <div class="table-responsive">
+                            <table id="complaint-history-table" class="table table-bordered table-striped table-condensed">
                               <thead>
                               <tr style="text-align: center">
-                                  <th style="text-align: center">Complaint Number</th>
-                                  <th style="text-align: center">Reg Date</th>
-                                  <th style="text-align: center">last Updation date</th>
-                                  <th style="text-align: center">Status</th>
-                                  <th style="text-align: center">Action</th>
+                                  <th scope="col" style="text-align: center">Complaint Number</th>
+                                  <th scope="col" style="text-align: center">Registration Date</th>
+                                  <th scope="col" style="text-align: center">Last Updated</th>
+                                  <th scope="col" style="text-align: center">Status</th>
+                                  <th scope="col" style="text-align: center">Action</th>
                                   
                               </tr>
                               </thead>
                               <tbody>
-  <?php $query=mysqli_query($con,"select * from tblcomplaints where userId='".$_SESSION['id']."'");
-while($row=mysqli_fetch_array($query))
-{
-  ?>
-                              <tr>
+                              <?php foreach ($complaints as $complaint) {
+                                  $row = $complaint['row'];
+                                  $filterStatus = $complaint['filterStatus'];
+                                  ?>
+                              <tr data-status="<?php echo $filterStatus; ?>">
                                   <td align="center"><?php echo htmlentities($row['complaintNumber']);?></td>
                                   <td align="center"><?php echo htmlentities($row['regDate']);?></td>
-                                 <td align="center"><?php echo  htmlentities($row['lastUpdationDate']);
-
-                                 ?></td>
-                                  <td align="center"><?php 
-                                    $status=$row['status'];
-                                    if($status=="" or $status=="NULL")
-                                    { ?>
-                                      <button type="button" class="btn btn-theme04">Not Process Yet</button>
-                                   <?php }
- if($status=="in process"){ ?>
-<button type="button" class="btn btn-warning">In Process</button>
-<?php }
-if($status=="closed") {
-?>
-<button type="button" class="btn btn-success">Closed</button>
-<?php } ?>
-                                   <td align="center">
-                                   <a href="complaint-details.php?cid=<?php echo htmlentities($row['complaintNumber']);?>">
-<button type="button" class="btn btn-primary">View Details</button></a>
-                                   </td>
-                                </tr>
+                                  <td align="center"><?php echo htmlentities($row['lastUpdationDate']);?></td>
+                                  <td align="center">
+                                      <?php if ($filterStatus === 'pending') { ?>
+                                      <span class="label label-warning">Not processed yet</span>
+                                      <?php } elseif ($filterStatus === 'in-process') { ?>
+                                      <span class="label label-info">In process</span>
+                                      <?php } elseif ($filterStatus === 'closed') { ?>
+                                      <span class="label label-success">Closed</span>
+                                      <?php } else { ?>
+                                      <span class="label label-default"><?php echo htmlentities($row['status']);?></span>
+                                      <?php } ?>
+                                  </td>
+                                  <td align="center">
+                                      <a class="btn btn-primary" href="complaint-details.php?cid=<?php echo rawurlencode($row['complaintNumber']);?>">View Details</a>
+                                  </td>
+                              </tr>
                               <?php } ?>
-                            
+                              <tr id="no-matching-complaints" hidden>
+                                  <td colspan="5" class="text-center">No complaints match these filters.</td>
+                              </tr>
+                              <?php if ($complaintTotal === 0) { ?>
+                              <tr id="no-complaints">
+                                  <td colspan="5" class="text-center">You have not submitted any complaints yet. <a href="register-complaint.php">Lodge a complaint</a>.</td>
+                              </tr>
+                              <?php } ?>
                               </tbody>
                           </table>
+                            </div>
                           </section>
                   </div><!-- /content-panel -->
                </div><!-- /col-lg-4 -->			
@@ -113,8 +164,7 @@ if($status=="closed") {
     <!--common script for all pages-->
     <script src="assets/js/common-scripts.js"></script>
 
-    <!--script for this page-->
-    
+    <script src="assets/js/complaint-history.js"></script>
 
   </body>
 </html>

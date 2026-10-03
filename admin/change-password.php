@@ -13,11 +13,11 @@ $currentTime = date( 'd-m-Y h:i:s A', time () );
 
 if(isset($_POST['submit']))
 {
-$sql=mysqli_query($con,"SELECT password FROM  admin where password='".md5($_POST['password'])."' && username='".$_SESSION['alogin']."'");
-$num=mysqli_fetch_array($sql);
+$sql=app_db_query($con,"SELECT password FROM  admin where password='".md5($_POST['password'])."' AND username='".$_SESSION['alogin']."'");
+$num=app_db_fetch_array($sql);
 if($num>0)
 {
- $con=mysqli_query($con,"update admin set password='".md5($_POST['newpassword'])."', updationDate='$currentTime' where username='".$_SESSION['alogin']."'");
+ $con=app_db_query($con,"update admin set password='".md5($_POST['newpassword'])."', updationDate='$currentTime' where username='".$_SESSION['alogin']."'");
 $_SESSION['msg']="Password Changed Successfully !!";
 }
 else
@@ -36,7 +36,7 @@ $_SESSION['msg']="Old Password not match !!";
 	<link type="text/css" href="bootstrap/css/bootstrap-responsive.min.css" rel="stylesheet">
 	<link type="text/css" href="css/theme.css" rel="stylesheet">
 	<link type="text/css" href="images/icons/css/font-awesome.css" rel="stylesheet">
-	<link type="text/css" href='http://fonts.googleapis.com/css?family=Open+Sans:400italic,600italic,400,600' rel='stylesheet'>
+	<link type="text/css" href='https://fonts.googleapis.com/css?family=Open+Sans:400italic,600italic,400,600' rel='stylesheet'>
 	<script type="text/javascript">
 function valid()
 {

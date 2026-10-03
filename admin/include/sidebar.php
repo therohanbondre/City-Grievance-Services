@@ -15,8 +15,8 @@
 											<i class="icon-tasks"></i>
 											Not Process Yet Complaint
 											<?php
-$rt = mysqli_query($con,"SELECT * FROM tblcomplaints where status is null");
-$num1 = mysqli_num_rows($rt);
+$rt = app_db_query($con,"SELECT * FROM tblcomplaints where status is null");
+$num1 = app_db_num_rows($rt);
 {?>
 		
 											<b class="label orange pull-right"><?php echo htmlentities($num1); ?></b>
@@ -29,8 +29,8 @@ $num1 = mysqli_num_rows($rt);
 											Pending Complaint
                    <?php 
   $status="in Process";                   
-$rt = mysqli_query($con,"SELECT * FROM tblcomplaints where status='$status'");
-$num1 = mysqli_num_rows($rt);
+$rt = app_db_query($con,"SELECT * FROM tblcomplaints where status='$status'");
+$num1 = app_db_num_rows($rt);
 {?><b class="label orange pull-right"><?php echo htmlentities($num1); ?></b>
 <?php } ?>
 										</a>
@@ -41,8 +41,8 @@ $num1 = mysqli_num_rows($rt);
 											Closed Complaints
 	     <?php 
   $status="closed";                   
-$rt = mysqli_query($con,"SELECT * FROM tblcomplaints where status='$status'");
-$num1 = mysqli_num_rows($rt);
+$rt = app_db_query($con,"SELECT * FROM tblcomplaints where status='$status'");
+$num1 = app_db_num_rows($rt);
 {?><b class="label green pull-right"><?php echo htmlentities($num1); ?></b>
 <?php } ?>
 

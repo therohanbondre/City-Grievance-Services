@@ -11,8 +11,8 @@ else {
 $complaintnumber=$_GET['cid'];
 $status=$_POST['status'];
 $remark=$_POST['remark'];
-$query=mysqli_query($con,"insert into complaintremark(complaintNumber,status,remark) values('$complaintnumber','$status','$remark')");
-$sql=mysqli_query($con,"update tblcomplaints set status='$status' where complaintNumber='$complaintnumber'");
+$query=app_db_query($con,"insert into complaintremark(complaintNumber,status,remark) values('$complaintnumber','$status','$remark')");
+$sql=app_db_query($con,"update tblcomplaints set status='$status' where complaintNumber='$complaintnumber'");
 
 echo "<script>alert('Complaint details updated successfully');</script>";
 

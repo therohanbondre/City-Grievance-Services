@@ -19,7 +19,7 @@ else{
 	<link type="text/css" href="bootstrap/css/bootstrap-responsive.min.css" rel="stylesheet">
 	<link type="text/css" href="css/theme.css" rel="stylesheet">
 	<link type="text/css" href="images/icons/css/font-awesome.css" rel="stylesheet">
-	<link type="text/css" href='http://fonts.googleapis.com/css?family=Open+Sans:400italic,600italic,400,600' rel='stylesheet'>
+	<link type="text/css" href='https://fonts.googleapis.com/css?family=Open+Sans:400italic,600italic,400,600' rel='stylesheet'>
 </head>
 <body>
 <?php include('include/header.php');?>
@@ -52,9 +52,9 @@ else{
 									</thead>
 									<tbody>
 
-<?php $query=mysqli_query($con,"select * from userlog");
+<?php $query=app_db_query($con,"select * from userlog");
 $cnt=1;
-while($row=mysqli_fetch_array($query))
+while($row=app_db_fetch_array($query))
 {
 ?>									
 										<tr>

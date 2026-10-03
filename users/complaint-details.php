@@ -23,6 +23,17 @@ else{ ?>
     <link href="assets/font-awesome/css/font-awesome.css" rel="stylesheet" />
     <link href="assets/css/style.css" rel="stylesheet">
     <link href="assets/css/style-responsive.css" rel="stylesheet">
+    <style>
+      @media print {
+        .header, aside, .site-footer, .complaint-actions {
+          display: none !important;
+        }
+        #main-content {
+          margin: 0 !important;
+          padding: 0 !important;
+        }
+      }
+    </style>
   </head>
 
   <body>
@@ -35,9 +46,18 @@ else{ ?>
           	<h3><i class="fa fa-angle-right"></i> Complaint Details</h3>
             <hr />
 
- <?php $query=mysqli_query($con,"select tblcomplaints.*,category.categoryName as catname from tblcomplaints join category on category.id=tblcomplaints.category where userId='".$_SESSION['id']."' and complaintNumber='".$_GET['cid']."'");
-while($row=mysqli_fetch_array($query))
+ <?php $query=app_db_query($con,"select tblcomplaints.*,category.categoryName as catname from tblcomplaints join category on category.id=tblcomplaints.category where userId='".$_SESSION['id']."' and complaintNumber='".$_GET['cid']."'");
+while($row=app_db_fetch_array($query))
 {?>
+            <div class="complaint-actions" role="group" aria-label="Complaint actions">
+              <button type="button" id="copy-complaint-number" class="btn btn-default" data-complaint-number="<?php echo htmlentities($row['complaintNumber'], ENT_QUOTES, 'UTF-8');?>">
+                <i class="fa fa-copy" aria-hidden="true"></i> Copy complaint number
+              </button>
+              <button type="button" class="btn btn-default" onclick="window.print();">
+                <i class="fa fa-print" aria-hidden="true"></i> Print details
+              </button>
+              <span id="copy-feedback" role="status" aria-live="polite"></span>
+            </div>
           	<div class="row mt">
             <label class="col-sm-2 col-sm-2 control-label"><b>Complaint Number : </b></label>
           		<div class="col-sm-4">
@@ -106,8 +126,8 @@ else{ ?>
 
 
 <?php 
-$ret=mysqli_query($con,"select complaintremark.remark as remark,complaintremark.status as sstatus,complaintremark.remarkDate as rdate from complaintremark join tblcomplaints on tblcomplaints.complaintNumber=complaintremark.complaintNumber where complaintremark.complaintNumber='".$_GET['cid']."'");
-while($rw=mysqli_fetch_array($ret))
+$ret=app_db_query($con,"select complaintremark.remark as remark,complaintremark.status as sstatus,complaintremark.remarkDate as rdate from complaintremark join tblcomplaints on tblcomplaints.complaintNumber=complaintremark.complaintNumber where complaintremark.complaintNumber='".$_GET['cid']."'");
+while($rw=app_db_fetch_array($ret))
 {
 ?>
  <div class="row mt">
@@ -167,7 +187,7 @@ echo "Not Process yet";
     <script src="assets/js/common-scripts.js"></script>
 
     <!--script for this page-->
-    
+    <script src="assets/js/complaint-details.js"></script>
   <script>
       //custom select box
 

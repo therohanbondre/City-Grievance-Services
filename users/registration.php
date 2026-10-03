@@ -8,7 +8,7 @@ if(isset($_POST['submit']))
 	$password=md5($_POST['password']);
 	$contactno=$_POST['contactno'];
 	$status=1;
-	$query=mysqli_query($con,"insert into users(fullName,userEmail,password,contactNo,status) values('$fullname','$email','$password','$contactno','$status')");
+	$query=app_db_query($con,"insert into users(fullName,userEmail,password,contactNo,status) values('$fullname','$email','$password','$contactno','$status')");
 	$msg="Registration successfull. Now You can login !";
 }
 ?>

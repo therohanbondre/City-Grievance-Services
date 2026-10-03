@@ -13,7 +13,7 @@ if(isset($_POST['submit']))
 	$category=$_POST['category'];
 	$description=$_POST['description'];
 	$id=intval($_GET['id']);
-$sql=mysqli_query($con,"update category set categoryName='$category',categoryDescription='$description' where id='$id'");
+$sql=app_db_query($con,"update category set categoryName='$category',categoryDescription='$description' where id='$id'");
 $_SESSION['msg']="Category Updated !!";
 
 }
@@ -29,7 +29,7 @@ $_SESSION['msg']="Category Updated !!";
 	<link type="text/css" href="bootstrap/css/bootstrap-responsive.min.css" rel="stylesheet">
 	<link type="text/css" href="css/theme.css" rel="stylesheet">
 	<link type="text/css" href="images/icons/css/font-awesome.css" rel="stylesheet">
-	<link type="text/css" href='http://fonts.googleapis.com/css?family=Open+Sans:400italic,600italic,400,600' rel='stylesheet'>
+	<link type="text/css" href='https://fonts.googleapis.com/css?family=Open+Sans:400italic,600italic,400,600' rel='stylesheet'>
 </head>
 <body>
 <?php include('include/header.php');?>
@@ -61,8 +61,8 @@ $_SESSION['msg']="Category Updated !!";
 			<form class="form-horizontal row-fluid" name="Category" method="post" >
 <?php
 $id=intval($_GET['id']);
-$query=mysqli_query($con,"select * from category where id='$id'");
-while($row=mysqli_fetch_array($query))
+$query=app_db_query($con,"select * from category where id='$id'");
+while($row=app_db_fetch_array($query))
 {
 ?>									
 <div class="control-group">

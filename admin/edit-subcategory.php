@@ -13,7 +13,7 @@ if(isset($_POST['submit']))
 	$category=$_POST['category'];
 	$subcat=$_POST['subcategory'];
 	$id=intval($_GET['id']);
-$sql=mysqli_query($con,"update subcategory set categoryid='$category',subcategory='$subcat' where id='$id'");
+$sql=app_db_query($con,"update subcategory set categoryid='$category',subcategory='$subcat' where id='$id'");
 $_SESSION['msg']="Category Updated !!";
 
 }
@@ -29,7 +29,7 @@ $_SESSION['msg']="Category Updated !!";
 	<link type="text/css" href="bootstrap/css/bootstrap-responsive.min.css" rel="stylesheet">
 	<link type="text/css" href="css/theme.css" rel="stylesheet">
 	<link type="text/css" href="images/icons/css/font-awesome.css" rel="stylesheet">
-	<link type="text/css" href='http://fonts.googleapis.com/css?family=Open+Sans:400italic,600italic,400,600' rel='stylesheet'>
+	<link type="text/css" href='https://fonts.googleapis.com/css?family=Open+Sans:400italic,600italic,400,600' rel='stylesheet'>
 </head>
 <body>
 <?php include('include/header.php');?>
@@ -61,8 +61,8 @@ $_SESSION['msg']="Category Updated !!";
 			<form class="form-horizontal row-fluid" name="Category" method="post" >
 <?php
 $id=intval($_GET['id']);
-$query=mysqli_query($con,"select category.id,category.categoryName,subcategory.subcategory from subcategory join category on category.id=subcategory.categoryid where subcategory.id='$id'");
-while($row=mysqli_fetch_array($query))
+$query=app_db_query($con,"select category.id,category.categoryName,subcategory.subcategory from subcategory join category on category.id=subcategory.categoryid where subcategory.id='$id'");
+while($row=app_db_fetch_array($query))
 {
 ?>		
 
@@ -71,8 +71,8 @@ while($row=mysqli_fetch_array($query))
 <div class="controls">
 <select name="category" class="span8 tip" required>
 <option value="<?php echo htmlentities($row['id']);?>"><?php echo htmlentities($catname=$row['categoryName']);?></option>
-<?php $ret=mysqli_query($con,"select * from category");
-while($result=mysqli_fetch_array($ret))
+<?php $ret=app_db_query($con,"select * from category");
+while($result=app_db_fetch_array($ret))
 {
 	$cat=$result['categoryName'];
 if($catname=$cat)

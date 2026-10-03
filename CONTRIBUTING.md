@@ -30,15 +30,10 @@ Before contributing, please:
 
 Follow the [Installation](README.md#installation) steps in the README.
 
-After cloning, the two files excluded from git need to be created manually:
+After cloning, create the two ignored local config files from their tracked PostgreSQL templates:
 
 ```bash
-# 1. Create your local config files from the shared template
-copy .env.example .env          # Windows
-cp .env.example .env            # Linux / macOS
-
-# 2. Copy config template into both locations
-#    (edit with your DB credentials if different from XAMPP defaults)
+# Copy config templates into both locations
 copy admin\include\config.example.php admin\include\config.php    # Windows
 copy users\includes\config.example.php users\includes\config.php  # Windows
 
@@ -46,7 +41,7 @@ cp admin/include/config.example.php admin/include/config.php      # Linux / macO
 cp users/includes/config.example.php users/includes/config.php    # Linux / macOS
 ```
 
-> If `config.example.php` does not exist, copy the content from `.env.example` comments — the config files only need the four `define()` lines and the `mysqli_connect()` call.
+Set `SUPABASE_DB_URL` or the `SUPABASE_DB_*` variables in the PHP runtime. `.env.example` documents the variable names; this project does not load `.env` files automatically. Run `supabase/schema.sql` in Supabase before starting the app.
 
 Verify the application loads at `http://localhost/complaint/` before making any changes.
 
@@ -67,12 +62,12 @@ Verify the application loads at `http://localhost/complaint/` before making any 
   ```
 - Include `error_reporting(0);` on all user-facing pages (existing convention).
 - Output user-supplied data through `htmlentities()` before echoing it to the page.
-- Use `mysqli_*` functions — never the removed `mysql_*` API.
+- Use `app_db_query()`, `app_db_fetch_array()`, and `app_db_num_rows()` for database access. The shared connection is PDO PostgreSQL from `database.php`.
 
 ### SQL
 
-- New queries should use **prepared statements** (`mysqli_prepare` / `bind_param`). Existing string-concatenated queries are a known issue; do not introduce new ones.
-- Column and table names should match the existing `cms` schema exactly (case-sensitive on Linux MySQL).
+- New queries should use **prepared statements** with PDO. Existing string-concatenated queries are a known issue; do not introduce new ones.
+- Column and table names should match `supabase/schema.sql`. PostgreSQL folds unquoted identifiers to lowercase.
 
 ### HTML / CSS
 
